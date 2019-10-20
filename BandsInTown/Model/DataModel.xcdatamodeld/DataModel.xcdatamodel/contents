@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="15400" systemVersion="19A602" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="FavoriteArtist" representedClassName=".FavoriteArtist" syncable="YES" codeGenerationType="class">
+        <attribute name="id" attributeType="String"/>
+        <attribute name="image_url" attributeType="String"/>
+        <attribute name="name" attributeType="String"/>
+        <attribute name="tracker_count" attributeType="String"/>
+        <attribute name="upcoming_event_count" attributeType="String"/>
+    </entity>
+    <elements>
+        <element name="FavoriteArtist" positionX="-63" positionY="-18" width="128" height="118"/>
+    </elements>
+</model>
