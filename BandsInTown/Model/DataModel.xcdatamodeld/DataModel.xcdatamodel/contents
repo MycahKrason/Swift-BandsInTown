@@ -5,9 +5,8 @@
         <attribute name="image_url" attributeType="String"/>
         <attribute name="name" attributeType="String"/>
         <attribute name="tracker_count" attributeType="String"/>
-        <attribute name="upcoming_event_count" attributeType="String"/>
     </entity>
     <elements>
-        <element name="FavoriteArtist" positionX="-63" positionY="-18" width="128" height="118"/>
+        <element name="FavoriteArtist" positionX="-63" positionY="-18" width="128" height="103"/>
     </elements>
 </model>

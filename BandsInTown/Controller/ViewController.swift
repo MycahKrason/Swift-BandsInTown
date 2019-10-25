@@ -11,8 +11,12 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     //This will be used to hide the search bar
     @IBOutlet weak var tableViewTopConstraint: NSLayoutConstraint!
     
-    var artistArray : [ArtistData] = [ArtistData]()
+    var artistArray : [SearchArtistData] = [SearchArtistData]()
     var favoritesArray : [FavoriteArtist] = [FavoriteArtist]()
+    
+    var sendUpcomingEvents : String = ""
+    
+    let key = "6RLeFqUfcN6SQnnQgPCfq3OozzS6YfTI3zIuDvTd"
     
     //Context for Core Data
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
@@ -55,7 +59,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     //Press search in the text field
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         dismissKeyboard()
-        getSearchResults()
+        getArtistSearchResultsList()
           
         return true
     }
@@ -104,10 +108,12 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         if artistFavoritesSegmentDisplay.selectedSegmentIndex == 0{
             //SEARCHED
             
-            //Check the artist to see if it is liked or not
+//            Check the artist to see if it is liked or not
             for favs in favoritesArray{
                 if favs.id == artistArray[indexPath.row].id{
+                    
                     artistArray[indexPath.row].favorite_selected = true
+                    
                 }
             }
             
@@ -116,6 +122,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
 
             //Set Artist Image
             cell.profileImage.imageFromServerURL(artistArray[indexPath.row].image_url, placeHolder: UIImage(systemName: "person.circle"))
+            
             
             if artistArray[indexPath.row].favorite_selected == true{
                 cell.likeButton.image = UIImage(systemName: "star.fill")
@@ -147,9 +154,62 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     //Set a segue to go to the Artist description page
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-        //Set up Segue to Band page
-        performSegue(withIdentifier: "toArtistDetails", sender: self)
+        var safeSearch: String = ""
         
+        if artistFavoritesSegmentDisplay.selectedSegmentIndex == 0{
+            
+            safeSearch = artistArray[indexPath.row].name.replacingOccurrences(of: " ", with: "")
+            
+        }else{
+            safeSearch = favoritesArray[indexPath.row].name!.replacingOccurrences(of: " ", with: "")
+        }
+        
+        //Reach out to the Second Public endpoint to retrieve the Upcoming Event Count
+        let url = URL(string: "https://rest.bandsintown.com/artists/\(safeSearch)?app_id=test")
+
+        var request = URLRequest(url: url!)
+        request.httpMethod = "GET"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.addValue("\(key)", forHTTPHeaderField: "x-api-key")
+
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            if error != nil{
+
+                print(error as Any)
+                DispatchQueue.main.async {
+                    self.alertUser(message: "Please Connect to the Internet")
+                }
+
+                return
+
+            }
+
+            if let safeData = data{
+
+
+                let decoder = JSONDecoder()
+
+                do{
+                    let decodedData = try decoder.decode(ArtistData.self, from: safeData)
+
+                    self.sendUpcomingEvents = String(decodedData.upcoming_event_count)
+                    
+                    DispatchQueue.main.async {
+                        self.performSegue(withIdentifier: "toArtistDetails", sender: self)
+                    }
+
+                }catch let error{
+
+                    print(error)
+
+                }
+
+            }
+
+        }
+
+        task.resume()
+
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -165,13 +225,15 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                     
                     destVC.bandNamePassed = artistArray[indexPath.row].name
                     destVC.trackerCountPassed = String(artistArray[indexPath.row].tracker_count)
-                    destVC.upcomingEventCountPassed = String(artistArray[indexPath.row].upcoming_event_count)
-                    
+                
+                    destVC.upcomingEventCountPassed = sendUpcomingEvents
+                  
                 }else{
                     
                     destVC.bandNamePassed = favoritesArray[indexPath.row].name!
                     destVC.trackerCountPassed = favoritesArray[indexPath.row].tracker_count!
-                    destVC.upcomingEventCountPassed = favoritesArray[indexPath.row].upcoming_event_count!
+                    
+                    destVC.upcomingEventCountPassed = sendUpcomingEvents
                    
                 }
                 
@@ -180,7 +242,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 if let safeImage = cell.profileImage.image{
                     destVC.profileImageDataPassed = safeImage
                 }
-            
+                
             }
         }
     }
@@ -188,66 +250,79 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     //******//
     //Search//
     //******//
-    func getSearchResults(){
-      
-        let key = "EJqbBuarkq7bNqBZgNnaA6hPG5b0HzAY1q6CBAF4"
+    func getArtistSearchResultsList(){
+        
+        self.artistArray = []
 
         //This text will be from the search input and it will need to have all spaces removed
-        if let safeSearch = searchInput.text?.replacingOccurrences(of: " ", with: ""){
-          
-            let url = URL(string: "https://rest.bandsintown.com/artists/\(safeSearch)?app_id=test")
+        if let safeSearch = searchInput.text?.replacingOccurrences(of: " ", with: "%20"){
+            
+            let url = URL(string: "https://search.bandsintown.com/search?query=%7B%22term%22%3A%22\(safeSearch)%22%2C%22entities%22%3A%5B%7B%22type%22%3A%22artist%22%7D%5D%7D")
+            
             var request = URLRequest(url: url!)
             request.httpMethod = "GET"
-            request.addValue("application/json", forHTTPHeaderField: "Accept")
+            request.addValue("application/json", forHTTPHeaderField: "Content-Type")
             request.addValue("\(key)", forHTTPHeaderField: "x-api-key")
 
             let task = URLSession.shared.dataTask(with: request) { data, response, error in
                 if error != nil{
-                    
+
                     print(error as Any)
                     DispatchQueue.main.async {
                         self.alertUser(message: "Please Connect to the Internet")
                     }
-                    
+
                     return
-                    
+
                 }
                 
-                if let safeData = data{
-                    self.parseJson(artistData: safeData)
+                guard let jsonData = data else {return}
+                
+                do{
+                    if let json = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String : Any] {
+                       
+                        if let artistList = json["artists"] as? Array<Dictionary<String, Any>>{
+                            
+                            for artist in artistList{
+                                
+                                let safeId: Int = artist["id"] as! Int
+                                let saferId : String = String(safeId)
+                                let safeName: String = artist["name"] as! String
+                                
+                                var safeImage : String = ""
+                                if artist["image_url"] != nil{
+                                    safeImage = artist["image_url"] as! String
+                                }
+                                
+                                let safeTracker: Int = artist["tracker_count"] as! Int
+                                
+                                let searchedArtistData = SearchArtistData(id: saferId, name: safeName, image_url: safeImage, tracker_count: safeTracker)
+                                
+                                self.artistArray.append(searchedArtistData)
+                                                                
+                            }
+                            
+                        }else{
+                            print("Could not find Artist")
+                            DispatchQueue.main.async {
+                                self.alertUser(message: "We are unable to find this Artist")
+                            }
+                        }
+                        
+                    }
+                    
+                }catch let error{
+                    print(error)
                 }
-              
+                
                 DispatchQueue.main.async {
                     self.bandsResultTable.reloadData()
                 }
-              
+               
             }
-          
+            
             task.resume()
           
-        }
-      
-    }
-
-    func parseJson(artistData: Data){
-        let decoder = JSONDecoder()
-
-        do{
-            let decodedData = try decoder.decode(ArtistData.self, from: artistData)
-
-            //Clear the Array
-            self.artistArray = []
-            
-            //Add the decodedData to an Array
-            self.artistArray.append(decodedData)
-          
-        }catch{
-            
-            print("Could not find Artist")
-            DispatchQueue.main.async {
-                self.alertUser(message: "We are unable to find this Artist")
-            }
-            
         }
       
     }
@@ -286,48 +361,52 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     func favoriteBtnSelected(cell: UITableViewCell) {
         let indexPathClickedOn = bandsResultTable.indexPath(for: cell)
         
+        //SEARCH
         if artistFavoritesSegmentDisplay.selectedSegmentIndex == 0{
             
             if favoritesArray.count != 0{
                 
+                print("Favorites is not equal to 0")
+                
                 //Check to see if the Searched Artist is already in the Favorites Array
-                var favoriteMatch : Bool?
+                var favoriteMatch : Bool = false
                 var removeAtIndex : Int?
                 for (index, favs) in favoritesArray.enumerated(){
-                    
-                    if favs.id == artistArray[indexPathClickedOn!.section].id{
-                        
-                        print("theres a match")
+
+                    if favs.id == artistArray[indexPathClickedOn![1]].id{
+
                         favoriteMatch = true
                         removeAtIndex = index
                         
+                        break
+
                     }else{
                         print("NO Match")
                     }
-                    
+
                 }
                 
-                if favoriteMatch != nil{
+                if favoriteMatch == true{
                     //If safeFavoriteMatch is true - then there is already a favorite, and you don't want to add another - but should instead delete it
-                    
-                    artistArray[indexPathClickedOn!.section].favorite_selected = false
+
+                    artistArray[indexPathClickedOn![1]].favorite_selected = false
+
                     if let safeRemoveAtIndex = removeAtIndex{
-                        
+
                         context.delete(favoritesArray[safeRemoveAtIndex])
                         favoritesArray.remove(at: safeRemoveAtIndex)
                         saveFavoriteArtistToCD()
-                        
+
                     }
-                    
                 }else{
-                    
+
                     //if safeFavoriteMatch is false - then there is no favorite and we need to add it to the list
                     if let safeIndexPathClickedOn = indexPathClickedOn{
                        addSearchedArtistToFavorites(indexPath: safeIndexPathClickedOn)
                     }
-                    
+
                 }
-                
+
             }else{
                 
                 //if there is nothing in the Favorites array, then this artist is a new entry and should be added
@@ -339,16 +418,40 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 
         }else{
             
+            //FAVORITES
             if favoritesArray.count != 0{
                 
+                //From Above - use this as a model
+                var artistMatch : Bool = false
+                var removeAtIndex : Int?
+                for (index, searchedArtist) in artistArray.enumerated(){
+
+                    if searchedArtist.id == favoritesArray[indexPathClickedOn![1]].id{
+
+                        artistMatch = true
+                        removeAtIndex = index
+                        
+                        break
+
+                    }else{
+                        print("NO Match")
+                    }
+
+                }
+                  
+                if artistMatch == true{
+                    
+                    if let safeUnFavoriteArtist = removeAtIndex{
+                        
+                        artistArray[safeUnFavoriteArtist].favorite_selected = false
+                        
+                    }
+                    
+                }
+                  
                 context.delete(favoritesArray[indexPathClickedOn![1]])
                 favoritesArray.remove(at: indexPathClickedOn![1])
                 saveFavoriteArtistToCD()
-                
-                //Need to update the Favorite Icon
-                if artistArray.count != 0{
-                    artistArray[indexPathClickedOn!.section].favorite_selected = false
-                }
                 
             }
             
@@ -358,15 +461,17 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
     
     func addSearchedArtistToFavorites(indexPath: IndexPath){
-        artistArray[indexPath.section].favorite_selected = true
+        
+        artistArray[indexPath[1]].favorite_selected = true
+        
+        print(artistArray[indexPath[1]].name)
         
         let favoriteArtist = FavoriteArtist(context: context)
         
-        favoriteArtist.id = artistArray[indexPath.section].id
-        favoriteArtist.name = artistArray[indexPath.section].name
-        favoriteArtist.image_url = artistArray[indexPath.section].image_url
-        favoriteArtist.tracker_count = String(artistArray[indexPath.section].tracker_count)
-        favoriteArtist.upcoming_event_count = String(artistArray[indexPath.section].upcoming_event_count)
+        favoriteArtist.id = artistArray[indexPath[1]].id
+        favoriteArtist.name = artistArray[indexPath[1]].name
+        favoriteArtist.image_url = artistArray[indexPath[1]].image_url
+        favoriteArtist.tracker_count = String(artistArray[indexPath[1]].tracker_count)
         
         saveFavoriteArtistToCD()
         favoritesArray.append(favoriteArtist)

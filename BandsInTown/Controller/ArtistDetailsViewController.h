@@ -15,6 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic) NSString* upcomingEventCountPassed;
 @property (strong, nonatomic) UIImage* profileImageDataPassed;
 
+
 @end
 
 NS_ASSUME_NONNULL_END

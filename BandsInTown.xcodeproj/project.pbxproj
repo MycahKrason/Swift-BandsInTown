@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		773ED47A23614A37000573E4 /* SearchedArtistData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 773ED47923614A37000573E4 /* SearchedArtistData.swift */; };
 		7782744C235B83850023AA7E /* UIImageView+LoadCacheImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7782744B235B83850023AA7E /* UIImageView+LoadCacheImage.swift */; };
 		7795102F23595A5800F7B9A5 /* ArtistDetailsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7795102D23595A5800F7B9A5 /* ArtistDetailsViewController.m */; };
 		77B5EA092353BFFF00BFDEC8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77B5EA082353BFFF00BFDEC8 /* AppDelegate.swift */; };
@@ -23,6 +24,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		773ED47923614A37000573E4 /* SearchedArtistData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchedArtistData.swift; sourceTree = "<group>"; };
 		7782744B235B83850023AA7E /* UIImageView+LoadCacheImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView+LoadCacheImage.swift"; sourceTree = "<group>"; };
 		7795102B23595A5700F7B9A5 /* BandsInTown-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "BandsInTown-Bridging-Header.h"; sourceTree = "<group>"; };
 		7795102C23595A5800F7B9A5 /* ArtistDetailsViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ArtistDetailsViewController.h; sourceTree = "<group>"; };
@@ -90,6 +92,7 @@
 			children = (
 				77FF6B882356AC150028CED9 /* ArtistData.swift */,
 				77FF6BAF235818C90028CED9 /* DataModel.xcdatamodeld */,
+				773ED47923614A37000573E4 /* SearchedArtistData.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -212,6 +215,7 @@
 				77FF6BB1235818C90028CED9 /* DataModel.xcdatamodeld in Sources */,
 				7795102F23595A5800F7B9A5 /* ArtistDetailsViewController.m in Sources */,
 				77B5EA092353BFFF00BFDEC8 /* AppDelegate.swift in Sources */,
+				773ED47A23614A37000573E4 /* SearchedArtistData.swift in Sources */,
 				77FF6B8123554E0B0028CED9 /* BandsTableViewCell.swift in Sources */,
 				77B5EA0B2353BFFF00BFDEC8 /* SceneDelegate.swift in Sources */,
 			);
