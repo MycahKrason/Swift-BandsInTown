@@ -259,7 +259,15 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         //This text will be from the search input and it will need to have all spaces removed
         if let safeSearch = searchInput.text?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed){
             
-            let url = URL(string: "https://search.bandsintown.com/search?query=%7B%22term%22%3A%22\(safeSearch)%22%2C%22entities%22%3A%5B%7B%22type%22%3A%22artist%22%7D%5D%7D")
+            let arrayOfGenres = ["jazz", "rock", "pop", "country"]
+            var typeOfSearch = "term"
+            
+            if arrayOfGenres.contains(safeSearch){
+                typeOfSearch = "genre"
+            }
+            
+            
+            let url = URL(string: "https://search.bandsintown.com/search?query=%7B%22\(typeOfSearch)%22%3A%22\(safeSearch)%22%2C%22entities%22%3A%5B%7B%22type%22%3A%22artist%22%7D%5D%7D")
             
             var request = URLRequest(url: url!)
             request.httpMethod = "GET"
