@@ -84,9 +84,10 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         }
     }
 
-    //*****//
-    //Table//
-    //*****//
+    
+    //******//
+    //Tables//
+    //******//
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
         if artistFavoritesSegmentDisplay.selectedSegmentIndex == 0{
@@ -108,7 +109,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         if artistFavoritesSegmentDisplay.selectedSegmentIndex == 0{
             //SEARCHED
             
-//            Check the artist to see if it is liked or not
+          //Check the artist to see if it is liked or not
             for favs in favoritesArray{
                 if favs.id == artistArray[indexPath.row].id{
                     
@@ -158,10 +159,10 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         
         if artistFavoritesSegmentDisplay.selectedSegmentIndex == 0{
             
-            safeSearch = artistArray[indexPath.row].name.replacingOccurrences(of: " ", with: "")
+            safeSearch = artistArray[indexPath.row].name.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
             
         }else{
-            safeSearch = favoritesArray[indexPath.row].name!.replacingOccurrences(of: " ", with: "")
+            safeSearch = favoritesArray[indexPath.row].name!.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
         }
         
         //Reach out to the Second Public endpoint to retrieve the Upcoming Event Count
@@ -247,6 +248,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         }
     }
     
+    
     //******//
     //Search//
     //******//
@@ -255,7 +257,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         self.artistArray = []
 
         //This text will be from the search input and it will need to have all spaces removed
-        if let safeSearch = searchInput.text?.replacingOccurrences(of: " ", with: "%20"){
+        if let safeSearch = searchInput.text?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed){
             
             let url = URL(string: "https://search.bandsintown.com/search?query=%7B%22term%22%3A%22\(safeSearch)%22%2C%22entities%22%3A%5B%7B%22type%22%3A%22artist%22%7D%5D%7D")
             
@@ -335,6 +337,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         self.present(alertController, animated: true)
     }
     
+    
     //*******//
     //Buttons//
     //*******//
@@ -381,7 +384,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                         break
 
                     }else{
-                        print("NO Match")
+                        //print("NO Match")
                     }
 
                 }
@@ -434,7 +437,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                         break
 
                     }else{
-                        print("NO Match")
+                        //print("NO Match")
                     }
 
                 }

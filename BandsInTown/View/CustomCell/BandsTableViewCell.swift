@@ -14,7 +14,6 @@ class BandsTableViewCell: UITableViewCell {
     var favoriteSelectedState = false
     var delegate: BandsCellDelegate?
     
-    
     override func awakeFromNib() {
         super.awakeFromNib()
         
@@ -23,8 +22,6 @@ class BandsTableViewCell: UITableViewCell {
         profileImage.clipsToBounds = true;
     }
 
-    
-    
     @IBAction func favoriteBtn(_ sender: UIButton) {
         
         delegate?.favoriteBtnSelected(cell: self)

@@ -17,13 +17,4 @@ struct SearchArtistData{
     
     var favorite_selected : Bool = false
     
-//    mutating func changeFavoriteStatus(favoriteStatus: Bool){
-//        if favoriteStatus == true{
-//            self.favorite_selected = true
-//        }else{
-//            self.favorite_selected = false
-//        }
-//
-//    }
-    
 }

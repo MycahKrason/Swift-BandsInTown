@@ -11,7 +11,6 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
     
-    
     self.bandName.text = self.bandNamePassed;
     self.trackerCount.text = self.trackerCountPassed;
     self.upcomingEventCount.text = self.upcomingEventCountPassed;
@@ -22,9 +21,7 @@
     self.profileImage.clipsToBounds = true;
     self.bandInfoBox.layer.cornerRadius = 20;
     self.bandInfoBox.clipsToBounds = true;
-    
-    
-    
+     
 }
 
 /*
