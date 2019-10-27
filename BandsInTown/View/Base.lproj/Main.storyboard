@@ -118,8 +118,8 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="apv-UW-whT">
                                 <rect key="frame" x="20" y="20" width="374" height="357"/>
                                 <subviews>
-                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="lHW-1s-bQX">
-                                        <rect key="frame" x="37" y="28.5" width="300" height="300"/>
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="person.circle" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="lHW-1s-bQX">
+                                        <rect key="frame" x="37" y="29" width="300" height="299"/>
                                         <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="300" id="Xym-LT-gbb"/>
@@ -234,4 +234,7 @@
             <point key="canvasLocation" x="200.00000000000003" y="71.651785714285708"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="person.circle" catalog="system" width="64" height="60"/>
+    </resources>
 </document>

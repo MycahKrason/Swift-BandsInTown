@@ -16,7 +16,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     var sendUpcomingEvents : String = ""
     
-    let key = "6RLeFqUfcN6SQnnQgPCfq3OozzS6YfTI3zIuDvTd"
     
     //Context for Core Data
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
@@ -59,9 +58,41 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     //Press search in the text field
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         dismissKeyboard()
-        getArtistSearchResultsList()
-          
+       
+        //Search the the Artist list
+        if let safeSearch = searchInput.text?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed){
+            SearchArtistListBrain().searchArtist(safeSearch: safeSearch, completion: { error, result in
+                
+                if error != ""{
+                    
+                    //This is triggered if you aren't connected to the internet
+                    DispatchQueue.main.async {
+                        self.alertUser(message: error)
+                    }
+                    
+                }else{
+                   
+                    if result.isEmpty{
+                        
+                        DispatchQueue.main.async {
+                            self.alertUser(message: "Unable to find Artist")
+                        }
+                        
+                    }else{
+                        
+                        self.artistArray = result
+                        
+                        DispatchQueue.main.async {
+                            self.bandsResultTable.reloadData()
+                        }
+                        
+                    }
+                }
+            })
+        }
+        
         return true
+        
     }
     
     //Save to Core Data
@@ -107,9 +138,9 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         cell.delegate = self
         
         if artistFavoritesSegmentDisplay.selectedSegmentIndex == 0{
-            //SEARCHED
+            //SEARCHED TABLE
             
-          //Check the artist to see if it is liked or not
+            //Check the artist to see if it is liked or not
             for favs in favoritesArray{
                 if favs.id == artistArray[indexPath.row].id{
                     
@@ -118,12 +149,9 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 }
             }
             
-            //Set Artist name
+            //Set Artist name and image
             cell.bandName.text = artistArray[indexPath.row].name
-
-            //Set Artist Image
             cell.profileImage.imageFromServerURL(artistArray[indexPath.row].image_url, placeHolder: UIImage(systemName: "person.circle"))
-            
             
             if artistArray[indexPath.row].favorite_selected == true{
                 cell.likeButton.image = UIImage(systemName: "star.fill")
@@ -132,7 +160,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             }
                 
         }else{
-            //FAVORITES
+            //FAVORITES TABLE
             
             if favoritesArray.count != 0{
                 
@@ -161,56 +189,33 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             
             safeSearch = artistArray[indexPath.row].name.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
             
+            
         }else{
+            
             safeSearch = favoritesArray[indexPath.row].name!.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
         }
-        
-        //Reach out to the Second Public endpoint to retrieve the Upcoming Event Count
-        let url = URL(string: "https://rest.bandsintown.com/artists/\(safeSearch)?app_id=test")
-
-        var request = URLRequest(url: url!)
-        request.httpMethod = "GET"
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.addValue("\(key)", forHTTPHeaderField: "x-api-key")
-
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
-            if error != nil{
-
-                print(error as Any)
+    
+        //Retrieve the Upcoming Tracker Number
+        RetrieveUpcomingTrackerBrain().getUpcomingTrackerNumber(safeSearch: safeSearch, completion: { error, result in
+            
+            if error != ""{
+                
                 DispatchQueue.main.async {
-                    self.alertUser(message: "Please Connect to the Internet")
+                    self.alertUser(message: error)
                 }
-
-                return
-
-            }
-
-            if let safeData = data{
-
-
-                let decoder = JSONDecoder()
-
-                do{
-                    let decodedData = try decoder.decode(ArtistData.self, from: safeData)
-
-                    self.sendUpcomingEvents = String(decodedData.upcoming_event_count)
-                    
-                    DispatchQueue.main.async {
-                        self.performSegue(withIdentifier: "toArtistDetails", sender: self)
-                    }
-
-                }catch let error{
-
-                    print(error)
-
+                
+            }else{
+                
+                self.sendUpcomingEvents = result
+                
+                DispatchQueue.main.async {
+                    self.performSegue(withIdentifier: "toArtistDetails", sender: self)
                 }
-
+                
             }
-
-        }
-
-        task.resume()
-
+            
+        })
+        
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -246,95 +251,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 
             }
         }
-    }
-    
-    
-    //******//
-    //Search//
-    //******//
-    func getArtistSearchResultsList(){
-        
-        self.artistArray = []
-
-        //This text will be from the search input and it will need to have all spaces removed
-        if let safeSearch = searchInput.text?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed){
-            
-            let arrayOfGenres = ["jazz", "rock", "pop", "country"]
-            var typeOfSearch = "term"
-            
-            if arrayOfGenres.contains(safeSearch){
-                typeOfSearch = "genre"
-            }
-            
-            
-            let url = URL(string: "https://search.bandsintown.com/search?query=%7B%22\(typeOfSearch)%22%3A%22\(safeSearch)%22%2C%22entities%22%3A%5B%7B%22type%22%3A%22artist%22%7D%5D%7D")
-            
-            var request = URLRequest(url: url!)
-            request.httpMethod = "GET"
-            request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-            request.addValue("\(key)", forHTTPHeaderField: "x-api-key")
-
-            let task = URLSession.shared.dataTask(with: request) { data, response, error in
-                if error != nil{
-
-                    print(error as Any)
-                    DispatchQueue.main.async {
-                        self.alertUser(message: "Please Connect to the Internet")
-                    }
-
-                    return
-
-                }
-                
-                guard let jsonData = data else {return}
-                
-                do{
-                    if let json = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String : Any] {
-                       
-                        if let artistList = json["artists"] as? Array<Dictionary<String, Any>>{
-                            
-                            for artist in artistList{
-                                
-                                let safeId: Int = artist["id"] as! Int
-                                let saferId : String = String(safeId)
-                                let safeName: String = artist["name"] as! String
-                                
-                                var safeImage : String = ""
-                                if artist["image_url"] != nil{
-                                    safeImage = artist["image_url"] as! String
-                                }
-                                
-                                let safeTracker: Int = artist["tracker_count"] as! Int
-                                
-                                let searchedArtistData = SearchArtistData(id: saferId, name: safeName, image_url: safeImage, tracker_count: safeTracker)
-                                
-                                self.artistArray.append(searchedArtistData)
-                                                                
-                            }
-                            
-                        }else{
-                            print("Could not find Artist")
-                            DispatchQueue.main.async {
-                                self.alertUser(message: "We are unable to find this Artist")
-                            }
-                        }
-                        
-                    }
-                    
-                }catch let error{
-                    print(error)
-                }
-                
-                DispatchQueue.main.async {
-                    self.bandsResultTable.reloadData()
-                }
-               
-            }
-            
-            task.resume()
-          
-        }
-      
     }
     
     //Alert the user when unable to locate Artist, or connect to the internet
@@ -489,3 +405,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
 
 }
+
+    
+    
+
+ 

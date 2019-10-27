@@ -1,11 +1,3 @@
-//
-//  SearchedArtistData.swift
-//  BandsInTown
-//
-//  Created by Mycah on 10/23/19.
-//  Copyright © 2019 Mycah Krason. All rights reserved.
-//
-
 import Foundation
 
 struct SearchArtistData{

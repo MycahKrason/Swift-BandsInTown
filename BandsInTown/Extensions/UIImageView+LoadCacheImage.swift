@@ -7,10 +7,18 @@ let imageCache = NSCache<NSString, UIImage>()
 
     
     func imageFromServerURL(_ URLString: String, placeHolder: UIImage?) {
-
+        
         self.image = nil
+        
         if let cachedImage = imageCache.object(forKey: NSString(string: URLString)) {
             self.image = cachedImage
+            return
+        }
+        
+        if URLString == ""{
+            DispatchQueue.main.async {
+                self.image = placeHolder
+            }
             return
         }
 
