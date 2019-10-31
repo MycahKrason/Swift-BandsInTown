@@ -61,7 +61,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
        
         //Search the the Artist list
         if let safeSearch = searchInput.text?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed){
-            SearchArtistListBrain().searchArtist(safeSearch: safeSearch, completion: { error, result in
+            SearchArtistsBrain().searchArtist(safeSearch: safeSearch, completion: { error, result in
                 
                 if error != ""{
                     
@@ -196,7 +196,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         }
     
         //Retrieve the Upcoming Tracker Number
-        RetrieveUpcomingTrackerBrain().getUpcomingTrackerNumber(safeSearch: safeSearch, completion: { error, result in
+        SearchArtistsBrain().getUpcomingTrackerNumber(safeSearch: safeSearch, completion: { error, result in
             
             if error != ""{
                 
